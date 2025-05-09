@@ -99,4 +99,14 @@ class AuthController extends Controller
     ], 200);
 
     }
+
+    public function index()
+    {
+        return view('login');
+    }
+
+    public function registerpage()
+    {
+        return view('register');
+    }
 }
