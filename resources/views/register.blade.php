@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>register</title>
-    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logos/logo.jpg') }}" />
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logos/logo.jpg') }}" alt="" width="120" />
     <link rel="stylesheet" href="{{ asset('assets/css/styles.min.css') }}" />
 </head>
 
@@ -21,7 +21,7 @@
                         <div class="card mb-0">
                             <div class="card-body">
                                 <a href="./index.html" class="text-nowrap logo-img text-center d-block py-3 w-100">
-                                    <img src="{{ asset('assets/images/logos/logo.jpg') }}" alt="">
+                                    <img src="{{ asset('/assets/images/logos/logo.jpg')}}" alt="" width="120">
                                 </a>
                                 <p class="text-center">Police App Connecting Citizens with Law Enforcement</p>
                                 <form id="registerForm">
