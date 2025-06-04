@@ -37,7 +37,11 @@ if (window.location.pathname.includes('/panel-control/vehicles')) {
             document.getElementById("createVehicleForm").reset();
         });
 
+        // create vehicle
         document.getElementById("createVehicleForm").addEventListener("submit", addVehicle);
+
+        // edit vehicle
+        document.getElementById("editVehicleForm").addEventListener("submit", updateVehicle);
     });
 
     function showErrorToast(message) {
@@ -58,6 +62,15 @@ if (window.location.pathname.includes('/panel-control/vehicles')) {
         document.getElementById("createColorError").textContent = "";
         document.getElementById("createIsStolenError").textContent = "";
     }
+
+    function clearEditFormErrors() {
+        document.getElementById("editLicensePlateError").textContent = "";
+        document.getElementById("editTypeError").textContent = "";
+        document.getElementById("editBrandError").textContent = "";
+        document.getElementById("editColorError").textContent = "";
+        document.getElementById("editIsStolenError").textContent = "";
+    }
+
 
     async function addVehicle(event) {
         event.preventDefault();
@@ -136,7 +149,7 @@ if (window.location.pathname.includes('/panel-control/vehicles')) {
                 <td>${item.is_stolen ? 'Yes' : 'No'}</td>
                 <td>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#editVehicleModal">Edit</button>
+                        data-bs-target="#editVehicleModal" onclick="showEditVehicleModal(${item.id}, ${index})">Edit</button>
                     <button type="button" class="btn btn-danger" onclick="confirmDeleteVehicle(${item.id})">Delete</button>
                 </td>
             `;
@@ -162,6 +175,81 @@ if (window.location.pathname.includes('/panel-control/vehicles')) {
             },
           }
         });
+    }
+
+    function showEditVehicleModal(id, index) {
+        clearEditFormErrors();
+        const item = window.vehicleData[index];
+
+        document.getElementById("editVehicleId").value = id;
+        document.getElementById("editLicensePlate").value = item.license_plate || '';
+        document.getElementById("editType").value = item.type || '';
+        document.getElementById("editBrand").value = item.brand || '';
+        document.getElementById("editColor").value = item.color || '';
+
+        if (item.is_stolen) {
+            document.getElementById("editIsStolenYes").checked = true;
+        } else {
+            document.getElementById("editIsStolenNo").checked = true;
+        }
+    }
+    async function updateVehicle(event) {
+        event.preventDefault();
+        clearEditFormErrors();
+
+        const id = document.getElementById("editVehicleId").value;
+        const license_plate = document.getElementById("editLicensePlate").value.trim();
+        const type = document.getElementById("editType").value.trim();
+        const brand = document.getElementById("editBrand").value.trim();
+        const color = document.getElementById("editColor").value.trim();
+        const isStolen = document.getElementById("editIsStolenYes").checked ? 1 : 0;
+
+        const token = decodeURIComponent(getCookie('token'));
+
+        try {
+            const response = await axios.put(`/api/panel-control/vehicles/${id}`, {
+                license_plate: license_plate,
+                type: type,
+                brand: brand,
+                color: color,
+                is_stolen: isStolen
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
+
+            $('#editVehicleModal').modal('hide');
+
+            setTimeout(() => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    icon: 'success',
+                    title: response.data.message
+                });
+            }, 300);
+
+            setTimeout(() => location.reload(), 1000);
+
+        } catch (error) {
+            if (error.response && error.response.status === 422) {
+                const errors = error.response.data.errors;
+                if (errors.license_plate) document.getElementById("editLicensePlateError").textContent = errors.license_plate[0];
+                if (errors.type) document.getElementById("editTypeError").textContent = errors.type[0];
+                if (errors.brand) document.getElementById("editBrandError").textContent = errors.brand[0];
+                if (errors.color) document.getElementById("editColorError").textContent = errors.color[0];
+                if (errors.is_stolen) document.getElementById("editIsStolenError").textContent = errors.is_stolen[0];
+            } else {
+                const errorMessage = error.response?.data?.message || "Terjadi kesalahan saat memperbarui kendaraan.";
+                showErrorToast(errorMessage);
+            }
+        }
+
     }
 }
 
