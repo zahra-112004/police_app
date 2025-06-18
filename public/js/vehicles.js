@@ -146,7 +146,7 @@ if (window.location.pathname.includes('/panel-control/vehicles')) {
                 <td>${item.type}</td>
                 <td>${item.brand}</td>
                 <td>${item.color}</td>
-                <td>${item.is_stolen ? 'Yes' : 'No'}</td>
+                <td>${number(item.is_stolen) === 1 ? 'Yes' : 'No'}</td>
                 <td>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#editVehicleModal" onclick="showEditVehicleModal(${item.id}, ${index})">Edit</button>
@@ -193,6 +193,7 @@ if (window.location.pathname.includes('/panel-control/vehicles')) {
             document.getElementById("editIsStolenNo").checked = true;
         }
     }
+    
     async function updateVehicle(event) {
         event.preventDefault();
         clearEditFormErrors();
